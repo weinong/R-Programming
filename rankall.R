@@ -9,4 +9,27 @@ rankall <- function(outcome, num = "best") {
   {
     stop("invalid outcome")
   }
+  data <- data[!grepl("Not Available", data[,colIndex]),]
+  data[,colIndex] <- as.numeric(data[,colIndex])
+  data <- data[,c(7, 2, colIndex)]
+  
+  data <- split(data, data[,1])
+  data <- lapply(data, function(x) x[order(x[,3], x[,2]),])
+  
+  data <- lapply(data, function(x) {
+    if (num == "best")
+      num <- 1
+    else if (num == "worst")
+      num <- nrow(x)
+    else if (num > nrow(x))
+      return (NA)
+    
+    return(x[num, 2])
+  }
+  )
+  data <- unlist(data)
+  data <- cbind(data, names(data))
+  data <- as.data.frame(data)
+  names(data) <- c("hospital", "state")
+  return(data)
 }
